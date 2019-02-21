@@ -7,7 +7,7 @@
 		<title>reveal.js</title>
 
 		<link rel="stylesheet" href="css/reveal.css">
-		<link rel="stylesheet" href="css/theme/black.css">
+		<link rel="stylesheet" href="css/theme/night.css">
 
 		<!-- Theme used for syntax highlighting of code -->
 		<link rel="stylesheet" href="lib/css/zenburn.css">
@@ -24,9 +24,95 @@
 	<body>
 		<div class="reveal">
 			<div class="slides">
-				<section>Slide 1</section>
-				<section>Slide 2</section>
-			</div>
+				<section>
+          <h1>A bit of audio scripting</h1>
+          <p>Stuart McDonald</p>
+        </section>
+				<section data-markdown>
+          It happened that I wanted to write code that generates audio.
+          - There are lots of languages for doing this.
+          - I chose one called ChucK (http://chuck.cs.princeton.edu/)
+        </section>
+
+				<section>
+          <h2>Play a sound</h2>
+          <pre>
+            <code data-trim data-noescape>
+SndBuf buf; // declare a wave data buffer
+
+buf => dac; // connect the buffer to the sound card
+            // note the "=>" (chuck) operator
+
+buf.read("chuck/sound.wav");
+
+buf.length => now; // render for the duration of sound buffer
+            </code>
+          </pre>
+          Listen <audio controls src="chuck/baa1.wav"></audio>
+        </section>
+
+				<section>
+          <h2>Make a tune</h2>
+          <pre>
+            <code data-trim data-noescape>
+// Various of sample to generate different pitches
+0 => float none;
+1.0 => float root;
+1.5 => float dom;
+1.25 => float third;
+1.143 => float sec;
+
+[
+    third, sec, root, sec, third, third, third, none,
+    sec, sec, sec, none, third, dom, dom, none
+] @=> float notes[];
+            </code>
+          </pre>
+        </section>
+
+				<section>
+          <h2>Make a tune cont.</h2>
+          <pre>
+            <code data-trim data-noescape>
+# play the sequence
+for (0 => int i; i < notes.cap(); i++) {
+    buf.pos(0); // sets read cursor to start of sound
+    buf.rate(notes[i]); // change playback speed or "note"
+    500::ms => now; // play for half a second
+                    // note this means tempo is 120bpm
+}
+            </code>
+          </pre>
+          Listen... <audio controls src="chuck/4.wav"></audio>
+        </section>
+
+				<section>
+          <h2>Add a house beat!</h2>
+          <pre>
+            <code data-trim data-noescape>
+              // In addition to the above...
+              SndBuf house => dac;
+              house.read("chuck/808beat.wav");
+              house.loop(1); // make playback loop at end of buffer
+            </code>
+          </pre>
+          Listen <audio controls src="chuck/5.wav"></audio>
+        </section>
+
+				<section>
+          <h2>Better applications...</h2>
+          <p>Concrete Mixer, an internet radio station</p>
+          <ul>
+            <li>ChucK scripts running on Raspberry Pi</li>
+            <li>Mixes and mangles field recordings I've collected</li>
+            <li><a href="https://github.com/concrete-mixer">https://github.com/concrete-mixer</a></li>
+            <li>Listen <audio controls src="http://concretemixer.enrichme.nz/concrete-mixer.mp3"></audio></li>
+          </ul>
+        </section>
+
+				<section>
+          <h1>Thanks!</h1>
+        </section>
 		</div>
 
 		<script src="lib/js/head.min.js"></script>
